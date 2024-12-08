@@ -1,11 +1,18 @@
-import gifAnimation.*;
-//import gifAnimation under Manage Libraries otherwise this will not run :P
+//Music from Death Road to Canada
+//SFX from Binding of Isaac and OpenGameArt.org
+//Art assets by yours truly :]
 
+import processing.sound.*;
+import gifAnimation.*;
+//import Sound and gifAnimation under Manage Libraries otherwise this will not run :P
+
+//keeps track of which buttons are being held to determine velocity
 boolean up = false;
 boolean left = false;
 boolean down = false;
 boolean right = false;
 
+//various images and gifs
 PImage three;
 PImage two;
 PImage one;
@@ -26,17 +33,36 @@ Gif glorgShoot;
 
 Gif spidah;
 
+//main menu and death screens
 PImage home;
 PImage death;
 
+//music
+SoundFile mainMenu;
+SoundFile mainTheme;
+SoundFile gameOver;
+
+//sfx
+SoundFile walk;
+SoundFile start;
+SoundFile door;
+SoundFile shoot;
+SoundFile enemyShot;
+SoundFile enemyDead;
+SoundFile hurt;
+
+//the best font I could find
 PFont pixel;
 
+//Position and Velocity Vectors for Glorg
 PVector glorgPos;
 PVector glorgVel;
-PVector glorgAcc;
+//Glorg's health
 int glorgHealth = 10;
 
+//variable storing which way Glorg should be facing
 char direction;
+//determines which frame of Glorg's animation to play, from 1-4
 int animFrame = 1;
 boolean anim = false;
 int ballSpeed = 10;
@@ -96,7 +122,6 @@ void setup(){
   
   glorgPos = new PVector(width/2, height*0.85);
   glorgVel = new PVector(0, 0);
-  glorgAcc = new PVector(0, 0);
   
   balls = new ArrayList<Slimeball>();
   rocks = new ArrayList<Rock>();
@@ -112,11 +137,27 @@ void setup(){
   one = loadImage("1.png");
   go = loadImage("glorg!.png");
   
+  mainMenu = new SoundFile(this, "MainMenu.mp3");
+  mainTheme = new SoundFile(this, "MainTheme.mp3");
+  gameOver = new SoundFile(this, "GameOver.mp3");
+
+  walk = new SoundFile(this, "GlorgStep.mp3");
+  start = new SoundFile(this, "GLORG!.mp3");
+  door = new SoundFile(this, "DoorOpen.mp3");
+  shoot = new SoundFile(this, "GlorgShoot.mp3");
+  enemyShot = new SoundFile(this, "EnemyHit.mp3");
+  enemyDead = new SoundFile(this, "EnemyKill.wav");
+  hurt = new SoundFile(this, "GlorgHurt.mp3");
+  
   lvlSetup(lvl);
 }
 
 void draw(){
   if (menu == true){
+    if (!(mainMenu.isPlaying())){
+      mainMenu.loop();
+      mainMenu.amp(0.2);
+    }
     drawMenu();
     displayHighScore();
   }
@@ -133,6 +174,11 @@ void draw(){
     displayScore(width/2, height/24 * 23.7);
   }
   else{
+    if (!(mainTheme.isPlaying())){
+      mainTheme.loop();
+      mainTheme.amp(0.2);
+    }
+    
     background(0);
     
     int uX = width/24;
@@ -209,6 +255,10 @@ void draw(){
       if (frameCount%10 == 0){
         animFrame++;
       }
+      if (frameCount%20 == 0){
+        walk.play();
+        walk.amp(0.3);
+      }
       if (animFrame>4){
         animFrame = 1;
       }
@@ -241,18 +291,25 @@ void draw(){
     if (reachSpidah (glorgPos, spidahs)){
       if (invincibility == false){
         glorgHealth--;
+        hurt.play();
       }
       if ((glorgHealth > 0) && (invincibility == false)){
         iFrames = frameCount;
         invincibility  = true;
       }
       if (glorgHealth <= 0){
+        mainTheme.stop();
+        start.play();
+        if (!(gameOver.isPlaying())){
+          gameOver.loop();
+          gameOver.amp(0.2);
+        }
         dead = true; 
       }
     }
     
     if (reachRock (glorgPos, rocks)){
-      //bonk sound
+      walk.play();
     }
     
     for (int i = 0; i < rocks.size(); i++){
@@ -278,7 +335,9 @@ void draw(){
       }
     }
     
-    if (spidahs.size() <= 0){
+    if ((spidahs.size() <= 0) && (lvlComplete == false)){
+      door.play();
+      door.amp(0.3);
       lvlComplete = true;
     }
     
@@ -288,9 +347,11 @@ void draw(){
     
     //draw health bar
     fill(200);
-    rect(0, 0, width/3, height/10); 
-    fill(255-(glorgHealth*25), 0+(glorgHealth*25), 0+(glorgHealth*10));
-    rect(10, 10, ((width/3 - 20)/10)*glorgHealth, height/10 - 20);
+    rect(0, 0, width/3, height/15); 
+    fill(150);
+    rect(10, 10, width/3 - 20, height/15 - 20);
+    fill(255-(glorgHealth*glorgHealth*4), 0+(glorgHealth*glorgHealth*25), 0+(glorgHealth*10));
+    rect(10, 10, ((width/3 - 20)/10)*glorgHealth, height/15 - 20);
   
   }
   
@@ -298,14 +359,26 @@ void draw(){
   if (countdown == true){
     if (frameCount - count < 20){
       image(three, width/2, height/2);
+      if (frameCount - count == 1){
+        walk.play();
+      }
     }
     else if (frameCount - count < 40){
       image(two, width/2, height/2);
+      if (frameCount - count == 21){
+        walk.play();
+      }
     }
     else if (frameCount - count < 60){
       image(one, width/2, height/2);
+      if (frameCount - count == 41){
+        walk.play();
+      }
     }
     else if (frameCount - count < 80){
+      if (frameCount - count == 61){
+        enemyShot.play();
+      }
       image(go, width/2, height/2, 1195, 337);
     }
     else{
@@ -364,11 +437,13 @@ void keyPressed(){
   }
   if (key == ' ') {
     if (menu == true){
+      mainMenu.stop();
       menu = false;
       countdown = true;
       count = frameCount;
     }
     else if (dead == true){
+      gameOver.stop();
       dead = false;
       reset();
       menu = true;
@@ -452,6 +527,7 @@ void glorgDirection(char d){
 void mousePressed(){
   if  ((menu == false) && (countdown == false)){
     if ((frameCount - cooldown) > shootTime){
+      shoot.play();
       shiftBalls();
       balls.add(new Slimeball (glorgPos.x, glorgPos.y, mouseX, mouseY));
       cooldown = frameCount;

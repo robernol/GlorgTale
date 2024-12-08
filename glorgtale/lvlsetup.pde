@@ -31,7 +31,6 @@ void reset(){
   glorgWalk = glorgDown;
   glorgPos = new PVector(width/2, height*0.85);
   glorgVel = new PVector(0, 0);
-  glorgAcc = new PVector(0, 0);
   balls = new ArrayList<Slimeball>();
   rocks = new ArrayList<Rock>();
   spidahs = new ArrayList<Spidah>();

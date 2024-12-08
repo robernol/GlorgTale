@@ -36,6 +36,7 @@ void drawBalls(){
       for (int j = 0; j < r.size(); j++){
         if (shootRock(balls.get(i), r.get(j))){
           balls.remove(i);
+          enemyShot.play();
           break;
         }
       }
@@ -44,6 +45,7 @@ void drawBalls(){
       for (int j = 0; j < s.size(); j++){
         if (shootSpidah(balls.get(i), s.get(j))){
           balls.remove(i);
+          enemyShot.play();
           s.get(j).health--;
           spidahDed(s, j);
           break;
@@ -53,6 +55,8 @@ void drawBalls(){
     if (!(balls.size() <= i)){
       if ((balls.get(i).Pos.x < width/24) || (balls.get(i).Pos.x > (width/24)*23) || (balls.get(i).Pos.y < height/24) || (balls.get(i).Pos.y > (height/24)*23)){
         balls.remove(i);
+        enemyShot.play();
+        enemyShot.amp(0.3);
         break;
       }
     }

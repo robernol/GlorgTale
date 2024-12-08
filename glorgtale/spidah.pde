@@ -12,6 +12,9 @@ void spidahDed(ArrayList<Spidah> s, int i){
   if (s.get(i).health <= 0){
     s.remove(i);
     score += 250;
+    enemyDead.play();
+    enemyDead.amp(0.4);
+    enemyDead.rate(random(0.5, 2));
   }
 }
 
