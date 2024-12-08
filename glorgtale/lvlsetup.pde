@@ -9,3 +9,29 @@ void lvlSetup (int lvl){
   }
   
 }
+
+void reset(){
+  up = false;
+  left = false;
+  down = false;
+  right = false;
+  glorgHealth = 10;
+  animFrame = 1;
+  anim = false;
+  menu = true;
+  dead = false;
+  countdown = false;
+  count = 0;
+  lvl = 1;
+  score = 0;
+  lvlComplete = false;
+  
+  glorgWalk = glorgDown;
+  glorgPos = new PVector(width/2, height*0.85);
+  glorgVel = new PVector(0, 0);
+  glorgAcc = new PVector(0, 0);
+  balls = new ArrayList<Slimeball>();
+  rocks = new ArrayList<Rock>();
+  spidahs = new ArrayList<Spidah>();
+  lvlSetup(lvl);
+}

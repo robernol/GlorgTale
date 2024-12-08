@@ -1,4 +1,5 @@
 import gifAnimation.*;
+//import gifAnimation under Manage Libraries otherwise this will not run :P
 
 boolean up = false;
 boolean left = false;
@@ -26,6 +27,9 @@ Gif glorgShoot;
 Gif spidah;
 
 PImage home;
+PImage death;
+
+PFont pixel;
 
 PVector glorgPos;
 PVector glorgVel;
@@ -33,30 +37,39 @@ PVector glorgAcc;
 int glorgHealth = 10;
 
 char direction;
-int x = 1;
+int animFrame = 1;
 boolean anim = false;
 int ballSpeed = 10;
 int cooldown = 0;
 int shootTime = 5;
 
 boolean menu = true;
+boolean dead = false;
 boolean countdown = false;
 int count = 0;
 int lvl = 1;
+int score = 0;
+int highScore = 0;
+PrintWriter HS;
 boolean lvlComplete = false;
 
 ArrayList<Slimeball> balls;
 ArrayList<Rock> rocks;
 ArrayList<Spidah> spidahs;
 
+
 void setup(){
   noCursor();
-
+  textSize(80);
+  textAlign(CENTER);
   imageMode(CENTER);
   fullScreen();
   background(255);
   noStroke();
   imageMode(CENTER);
+  
+  pixel = loadFont("OCRAExtended-80.vlw");
+  textFont (pixel, 60);
   
   glorgUp = loadImage("glorg-up.png");
   glorgLeft = loadImage("glorg-left.png");
@@ -66,6 +79,11 @@ void setup(){
   glorgWalk = glorgDown;
   
   reticle = loadImage("reticle.png");
+  
+  if (!(loadStrings("highscore.txt") == null)){
+    String[] read = (loadStrings("highscore.txt"));
+    highScore = int(read[0]);
+  }
   
   glorgShoot = new Gif(this, "slimeball.gif");
   glorgShoot.play();
@@ -82,6 +100,7 @@ void setup(){
   spidahs = new ArrayList<Spidah>();
   
   home = loadImage("menu.png");
+  death = loadImage("death.png");
   
   rock = loadImage("rock.png");
   
@@ -96,6 +115,19 @@ void setup(){
 void draw(){
   if (menu == true){
     drawMenu();
+    displayHighScore();
+  }
+  else if (dead == true){
+    if (score >= highScore){
+      highScore = score;
+      HS = createWriter("highscore.txt");
+      HS.println(highScore);
+      HS.flush();
+      HS.close();
+    }
+    background(0);
+    image(death, width/2, height/2, 1500, 1000);
+    displayScore(width/2, height/24 * 23.7);
   }
   else{
     background(0);
@@ -155,16 +187,16 @@ void draw(){
     }
     
     
-    image(glorgWalk, glorgPos.x, glorgPos.y, 100, 100, sheetX(x), sheetY(x), sheetX(x)+1600, sheetY(x)+1600);
+    image(glorgWalk, glorgPos.x, glorgPos.y, 100, 100, sheetX(animFrame), sheetY(animFrame), sheetX(animFrame)+1600, sheetY(animFrame)+1600);
     
     drawBalls();
     
     if (anim == true){
       if (frameCount%10 == 0){
-        x++;
+        animFrame++;
       }
-      if (x>4){
-        x = 1;
+      if (animFrame>4){
+        animFrame = 1;
       }
     }
     
@@ -191,7 +223,10 @@ void draw(){
     
     
     if (reachSpidah (glorgPos, spidahs)){
-      //decrease health
+      glorgHealth--;
+      if (glorgHealth <= 0){
+        dead = true; 
+      }
     }
     
     if (reachRock (glorgPos, rocks)){
@@ -227,6 +262,7 @@ void draw(){
     
     image(reticle, mouseX, mouseY, 50, 50);
     
+    displayScore(width/5*4, height/24 * 1.7);
     //draw health bar
   
   }
@@ -299,10 +335,17 @@ void keyPressed(){
     direction = 'd';
     anim = true;
   }
-  if ((key == ' ') && (menu == true)){
-    menu = false;
-    countdown = true;
-    count = frameCount;
+  if (key == ' ') {
+    if (menu == true){
+      menu = false;
+      countdown = true;
+      count = frameCount;
+    }
+    else if (dead == true){
+      dead = false;
+      reset();
+      menu = true;
+    }
   }
   if ((key == 'e') || (key == 'E')){
     if ((glorgPos.x > (width/24)*9) && (glorgPos.x < (width/24)*15) && (glorgPos.y > (height/24)*1) && (glorgPos.y < (height/24)*6) && (lvlComplete = true)){
