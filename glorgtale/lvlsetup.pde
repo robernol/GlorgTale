@@ -25,6 +25,8 @@ void reset(){
   lvl = 1;
   score = 0;
   lvlComplete = false;
+  iFrames = 0;
+  invincibility = false;
   
   glorgWalk = glorgDown;
   glorgPos = new PVector(width/2, height*0.85);

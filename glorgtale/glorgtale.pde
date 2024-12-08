@@ -53,6 +53,9 @@ int highScore = 0;
 PrintWriter HS;
 boolean lvlComplete = false;
 
+int iFrames = 0;
+boolean invincibility = false;
+
 ArrayList<Slimeball> balls;
 ArrayList<Rock> rocks;
 ArrayList<Spidah> spidahs;
@@ -186,11 +189,22 @@ void draw(){
       glorgVel.x += 1;
     }
     
-    
-    image(glorgWalk, glorgPos.x, glorgPos.y, 100, 100, sheetX(animFrame), sheetY(animFrame), sheetX(animFrame)+1600, sheetY(animFrame)+1600);
-    
     drawBalls();
     
+    if (invincibility == false){
+      image(glorgWalk, glorgPos.x, glorgPos.y, 100, 100, sheetX(animFrame), sheetY(animFrame), sheetX(animFrame)+1600, sheetY(animFrame)+1600);
+    }
+    else{
+      tint(255, 100, 100);
+      if (((frameCount - iFrames >= 0) && (frameCount - iFrames <= 4)) || ((frameCount - iFrames >= 10) && (frameCount - iFrames <= 14)) || ((frameCount - iFrames >= 20) && (frameCount - iFrames <= 24)) || 
+      ((frameCount - iFrames >= 30) && (frameCount - iFrames <= 34)) || ((frameCount - iFrames >= 40) && (frameCount - iFrames <= 44)) || ((frameCount - iFrames >= 50) && (frameCount - iFrames <= 54)) || 
+      ((frameCount - iFrames >= 60) && (frameCount - iFrames <= 64)) || ((frameCount - iFrames >= 70) && (frameCount - iFrames <= 74)) || ((frameCount - iFrames >= 80) && (frameCount - iFrames <= 84))){
+        image(glorgWalk, glorgPos.x, glorgPos.y, 100, 100, sheetX(animFrame), sheetY(animFrame), sheetX(animFrame)+1600, sheetY(animFrame)+1600);
+      }
+      if (frameCount - iFrames > 90){
+        invincibility = false;
+      }
+    }
     if (anim == true){
       if (frameCount%10 == 0){
         animFrame++;
@@ -199,6 +213,8 @@ void draw(){
         animFrame = 1;
       }
     }
+    
+    noTint();
     
     glorgVel.y *= 0.9;
     glorgVel.x *= 0.9;
@@ -223,7 +239,13 @@ void draw(){
     
     
     if (reachSpidah (glorgPos, spidahs)){
-      glorgHealth--;
+      if (invincibility == false){
+        glorgHealth--;
+      }
+      if ((glorgHealth > 0) && (invincibility == false)){
+        iFrames = frameCount;
+        invincibility  = true;
+      }
       if (glorgHealth <= 0){
         dead = true; 
       }
@@ -263,7 +285,12 @@ void draw(){
     image(reticle, mouseX, mouseY, 50, 50);
     
     displayScore(width/5*4, height/24 * 1.7);
+    
     //draw health bar
+    fill(200);
+    rect(0, 0, width/3, height/10); 
+    fill(255-(glorgHealth*25), 0+(glorgHealth*25), 0+(glorgHealth*10));
+    rect(10, 10, ((width/3 - 20)/10)*glorgHealth, height/10 - 20);
   
   }
   
