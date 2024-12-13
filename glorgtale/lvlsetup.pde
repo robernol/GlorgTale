@@ -1,4 +1,6 @@
 void lvlSetup (int lvl){
+  //resets player position, velocity
+  //based on level randomly fills the level with spidahs and rocks
   glorgPos = new PVector(width/2, height*0.85);
   glorgVel = new PVector(0, 0);
   for (int i = 0; i < lvl; i++){
@@ -9,7 +11,7 @@ void lvlSetup (int lvl){
   }
   
 }
-
+//resets all necessary variables
 void reset(){
   up = false;
   left = false;

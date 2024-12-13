@@ -1,3 +1,4 @@
+//spidah has a position and velocity vector, as well as 3 health
 class Spidah {
   float radius = 25;
   float health = 3;
@@ -9,6 +10,7 @@ class Spidah {
 }
 
 void spidahDed(ArrayList<Spidah> s, int i){
+  //if the spidah loses all it's health, it is removed and +250 score is added
   if (s.get(i).health <= 0){
     s.remove(i);
     score += 250;
@@ -19,6 +21,7 @@ void spidahDed(ArrayList<Spidah> s, int i){
 }
 
 void spidahFollow(Spidah s, PVector p){
+  //calculates distance between a spidah and the player, normalizes this vector, and updates the velocity to make them follow the player
   
   PVector v = new PVector (0, 0);
   
